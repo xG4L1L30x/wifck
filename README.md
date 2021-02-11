@@ -1,4 +1,4 @@
-# wifck
+# WiFck
 ***PROJECT IN PROGRESS***
 
 ***COMING SOON***
