@@ -2,7 +2,7 @@
 
 # wifck
 # https://github.com/xG4L1L30x/wifck
-# Author: G4L1L30
+# Dev: G4L1L30
 # Version: -
 
 H='\033[30m'
@@ -23,3 +23,31 @@ bgY='\033[43m'
 bgW='\033[107m'
 BD='\033[1m'
 Q='\033[0m'
+in="${C}[${Q}"
+out="${C}]${Q}"
+
+trap quit INT
+
+if [[ "$(id -u)" -ne 0 ]]; then
+		echo -e "[${R}${BD}!${Q}] This script must run as root!"
+		exit
+fi
+
+function iface() {
+	echo -e "${Y}:${in}${Y}${BD} INTERFACE ${Q}${out}${Y}:${Q}\n"
+  ip link | grep -E "^[0-9]+" | awk -F':' '{ print $2 }' 1> ./tmp/iface.txt
+  cat ./tmp/iface.txt | awk '{ print $1 }' | awk '{ print "\033[36m[\033[0m" "\033[32m\033[1m"NR "\033[0m\033[36m]\033[0m " $s }'
+	echo -ne "\n${BD}${R}${HOSTNAME}${G}@${C}WiFck${Q} >> " ; read set_iface
+	iface=$(sed "${set_iface}!d" ./tmp/iface.txt | awk '{ print $1 }')
+	if [[ -z ${iface} ]] || [[ ${set_iface} == 0 ]] || [[ $set_iface =~ [a-zA-Z]+ ]]; then
+		echo -e "${in}${BD}${R}!${Q}${out} Invalid Option! Please type a number.\n"
+		iface
+	fi
+}
+
+function quit() {
+  rm ./tmp/*
+  exit
+}
+
+iface
