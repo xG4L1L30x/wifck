@@ -33,8 +33,23 @@ if [[ "$(id -u)" -ne 0 ]]; then
 		exit
 fi
 
+function banner() {
+	printf """
+${BD}${C} █     █░ ██▓${R}  █████▒▄████▄   ██ ▄█▀${Q}
+${BD}${C}▓█░ █ ░█░▓██▒${R}▓██   ▒▒██▀ ▀█   ██▄█▒${Q}
+${BD}${C}▒█░ █ ░█ ▒██▒${R}▒████ ░▒▓█    ▄ ▓███▄░${Q}
+${BD}${C}░█░ █ ░█ ░██░${R}░▓█▒  ░▒▓▓▄ ▄██▒▓██ █▄ V1.0${Q}
+${BD}${C}░░██▒██▓ ░██░${R}░▒█░   ▒ ▓███▀ ░▒██▒ █▄${Q}
+${BD}${C}░ ▓░▒ ▒  ░▓  ${R} ▒ ░   ░ ░▒ ▒  ░▒ ▒▒ ▓▒${Q}
+${BD}${C}  ▒ ░ ░   ▒ ░${R} ░       ░  ▒   ░ ░▒ ▒░${Q}
+${BD}${C}  ░   ░   ▒ ░${R} ░ ░   ░        ░ ░░ ░ ${Q}
+${BD}${C}    ░     ░  ${R}       ░ ░      ░  ░${Q}
+${BD}${C}	           ${R}         ░${Q}
+"""
+}
+
 function iface() {
-	echo -e "${Y}:${in}${Y}${BD} INTERFACE ${Q}${out}${Y}:${Q}\n"
+	echo -e "${in}${Y}${BD} INTERFACE ${Q}${out}\n"
   ip link | grep -E "^[0-9]+" | awk -F':' '{ print $2 }' 1> ./tmp/iface.txt
   cat ./tmp/iface.txt | awk '{ print $1 }' | awk '{ print "\033[36m[\033[0m" "\033[32m\033[1m"NR "\033[0m\033[36m]\033[0m " $s }'
 	echo -ne "\n${BD}${R}${HOSTNAME}${G}@${C}WiFck${Q} >> " ; read set_iface
@@ -50,4 +65,5 @@ function quit() {
   exit
 }
 
+banner
 iface
