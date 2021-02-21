@@ -23,13 +23,14 @@ bgY='\033[43m'
 bgW='\033[107m'
 BD='\033[1m'
 Q='\033[0m'
-in="${C}[${Q}"
+in="${C}[${Q}${BD}"
 out="${C}]${Q}"
+input="\n${BD}${R}${HOSTNAME}${G}@${C}WiFck ${G}>> ${Q}"
 
 trap quit INT
 
-if [[ "$(id -u)" -ne 0 ]]; then
-		echo -e "[${R}${BD}!${Q}] This script must run as root!"
+if [[ "$(id -u)" != 0 ]]; then
+		echo -e "${in}${R}${BD}!${Q}${out} This script must run as root!"
 		exit
 fi
 
@@ -38,13 +39,14 @@ function banner() {
 ${BD}${C} █     █░ ██▓${R}  █████▒▄████▄   ██ ▄█▀${Q}
 ${BD}${C}▓█░ █ ░█░▓██▒${R}▓██   ▒▒██▀ ▀█   ██▄█▒${Q}
 ${BD}${C}▒█░ █ ░█ ▒██▒${R}▒████ ░▒▓█    ▄ ▓███▄░${Q}
-${BD}${C}░█░ █ ░█ ░██░${R}░▓█▒  ░▒▓▓▄ ▄██▒▓██ █▄ V1.0${Q}
+${BD}${C}░█░ █ ░█ ░██░${R}░▓█▒  ░▒▓▓▄ ▄██▒▓██ █▄ ${G}V1.0${Q}
 ${BD}${C}░░██▒██▓ ░██░${R}░▒█░   ▒ ▓███▀ ░▒██▒ █▄${Q}
 ${BD}${C}░ ▓░▒ ▒  ░▓  ${R} ▒ ░   ░ ░▒ ▒  ░▒ ▒▒ ▓▒${Q}
 ${BD}${C}  ▒ ░ ░   ▒ ░${R} ░       ░  ▒   ░ ░▒ ▒░${Q}
 ${BD}${C}  ░   ░   ▒ ░${R} ░ ░   ░        ░ ░░ ░ ${Q}
 ${BD}${C}    ░     ░  ${R}       ░ ░      ░  ░${Q}
 ${BD}${C}	           ${R}         ░${Q}
+
 """
 }
 
@@ -52,11 +54,40 @@ function iface() {
 	echo -e "${in}${Y}${BD} INTERFACE ${Q}${out}\n"
   ip link | grep -E "^[0-9]+" | awk -F':' '{ print $2 }' 1> ./tmp/iface.txt
   cat ./tmp/iface.txt | awk '{ print $1 }' | awk '{ print "\033[36m[\033[0m" "\033[32m\033[1m"NR "\033[0m\033[36m]\033[0m " $s }'
-	echo -ne "\n${BD}${R}${HOSTNAME}${G}@${C}WiFck${Q} >> " ; read set_iface
+	echo -ne ${input} ; read set_iface
 	iface=$(sed "${set_iface}!d" ./tmp/iface.txt | awk '{ print $1 }')
 	if [[ -z ${iface} ]] || [[ ${set_iface} == 0 ]] || [[ $set_iface =~ [a-zA-Z]+ ]]; then
 		echo -e "${in}${BD}${R}!${Q}${out} Invalid Option! Please type a number.\n"
 		iface
+	else
+		check_mode
+	fi
+}
+
+function check_mode() {
+	mode=$(iw $iface info | grep "type")
+	if [[ $mode != *'monitor'* ]]; then
+		echo -e "\n${in}${R}!${Q}${out} Interface is'nt on monitor mode!"
+		sleep 1
+		echo -e "${in}${Y}*${Q}${out} Change to monitor mode..."
+		sleep 2
+		change_mode
+	else
+		echo -e "\n${in}${Y}*${Q}${out} Set $iface to main interface"
+	fi
+}
+
+function change_mode() {
+	airmon-ng start ${iface} > /dev/null 2>&1
+	mon=$(ip link | grep -E "^[0-9]+" | awk -F':' '{ print $1 $2 }' | grep "mon")
+  if [[ ${mon} == *'mon'* ]]; then
+    iface="${iface}mon"
+  fi
+	mode=$(iw $iface info | grep "type")
+	if [[ ${mode} != *'monitor'* ]]; then
+		echo -e "${in}${R}!${Q}${out} Interface doesnt supported!"
+	else
+		echo -e "\n${in}${Y}*${Q}${out} Set $iface to main interface"
 	fi
 }
 
