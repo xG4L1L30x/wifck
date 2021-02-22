@@ -45,7 +45,8 @@ ${BD}${C}░ ▓░▒ ▒  ░▓  ${R} ▒ ░   ░ ░▒ ▒  ░▒ ▒▒
 ${BD}${C}  ▒ ░ ░   ▒ ░${R} ░       ░  ▒   ░ ░▒ ▒░${Q}
 ${BD}${C}  ░   ░   ▒ ░${R} ░ ░   ░        ░ ░░ ░ ${Q}
 ${BD}${C}    ░     ░  ${R}       ░ ░      ░  ░${Q}
-${BD}${C}	           ${R}         ░${Q}
+   ${BD}${C}~=:${in} Developed by G4L1L30 ${out}${C}:=~${Q}
+${BD}${C}> ${G}https://github.com/xG4L1L30x/WiFck ${C}<${Q}
 
 """
 }
@@ -66,14 +67,14 @@ function iface() {
 
 function check_mode() {
 	mode=$(iw $iface info | grep "type")
-	if [[ $mode != *'monitor'* ]]; then
+	if [[ ${mode} != *'monitor'* ]]; then
 		echo -e "\n${in}${R}!${Q}${out} Interface is'nt on monitor mode!"
 		sleep 1
 		echo -e "${in}${Y}*${Q}${out} Change to monitor mode..."
 		sleep 2
 		change_mode
 	else
-		echo -e "\n${in}${Y}*${Q}${out} Set $iface to main interface"
+		echo -e "\n${in}${Y}*${Q}${out} Set ${C}${iface}${Q} to main interface"
 	fi
 }
 
@@ -87,7 +88,7 @@ function change_mode() {
 	if [[ ${mode} != *'monitor'* ]]; then
 		echo -e "${in}${R}!${Q}${out} Interface doesnt supported!"
 	else
-		echo -e "\n${in}${Y}*${Q}${out} Set $iface to main interface"
+		echo -e "\n${in}${Y}*${Q}${out} Set ${C}${iface}${Q} to main interface"
 	fi
 }
 
