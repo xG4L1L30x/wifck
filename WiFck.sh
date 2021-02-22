@@ -75,6 +75,10 @@ function check_mode() {
 		change_mode
 	else
 		echo -e "\n${in}${Y}*${Q}${out} Set ${C}${iface}${Q} to main interface"
+		sleep 2
+		clear
+		banner
+		menu
 	fi
 }
 
@@ -89,7 +93,30 @@ function change_mode() {
 		echo -e "${in}${R}!${Q}${out} Interface doesnt supported!"
 	else
 		echo -e "\n${in}${Y}*${Q}${out} Set ${C}${iface}${Q} to main interface"
+		sleep 2
+		clear
+		banner
+		menu
 	fi
+}
+
+function menu() {
+	echo -e "${in}${Y} MENU ${Q}${out}\n"
+	echo -e "${in}${G}1${out}${BD} Capture Handshake"
+	echo -ne ${input} ; read menu_options
+	case ${menu_options} in
+		1 )
+			capture_handshake
+			;;
+	esac
+}
+
+function target() {
+	echo "in progress!"
+}
+
+function capture_handshake() {
+	echo "in progress!"
 }
 
 function quit() {
