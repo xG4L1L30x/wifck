@@ -108,7 +108,6 @@ function menu() {
 		1 )
 			clear
 			banner
-			target
 			capture_handshake
 			;;
 	esac
@@ -117,7 +116,7 @@ function menu() {
 function target() {
 	echo -e "${in}${Y}${BD} EXPLORING TARGET ${Q}${out}\n"
 	echo -e "${in}${Y}*${out} Wait at least 5 second and then press CTRL+C to stop"
-  xterm -e /bin/bash -l -c "airodump-ng -w tmp/target --output-format csv ${iface}"
+  xterm -bg "black" -T "Scanning Target" -e /bin/bash -l -c "airodump-ng -w tmp/target --output-format csv ${iface}"
   clear
   banner
   echo -e "${in}${Y}${BD} TARGET ${Q}${out}\n"
@@ -129,10 +128,19 @@ function target() {
   awk '{ print "\033[36m[\033[0m""\033[32m\033[1m"NR-1"\033[36m]\033[0m" $s }' tmp/target.txt | sed '1s/0/~/2'> tmp/showtarget.txt
   cat tmp/showtarget.txt
 	echo -ne ${input} ; read select_target
+	select_target=$(($select_target + 1))
+	essid=$(sed '1d' tmp/target.csv | cut -d, -f 14,4,1,6 | awk -F',' '{ print $4 }' | sed "${select_target}!d")
+  bssid=$(sed '1d' tmp/target.csv | cut -d, -f 14,4,1,6 | awk -F',' '{ print $1 }' | sed "${select_target}!d")
+  channel=$(sed '1d' tmp/target.csv | cut -d, -f 14,4,1,6 | awk -F',' '{ print $2 }' | sed "${select_target}!d")
+	echo -e "\n${in}${Y}*${Q}${out} Target${C}${essid}${Q} locked!"
+	sleep 2
 }
 
 function capture_handshake() {
-	echo "in progress!"
+	target
+	clear
+	banner
+	echo -e "${in}${Y}${BD} CAPTURE HANDSHAKE ${Q}${out}\n"
 }
 
 function quit() {
