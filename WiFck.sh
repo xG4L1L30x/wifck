@@ -61,18 +61,18 @@ function iface() {
 		echo -e "${in}${BD}${R}!${Q}${out} Invalid Option! Please type a number.\n"
 		iface
 	else
-		check_mode
+		checkMode
 	fi
 }
 
-function check_mode() {
+function checkMode() {
 	mode=$(iw $iface info | grep "type")
 	if [[ ${mode} != *'monitor'* ]]; then
 		echo -e "\n${in}${R}!${Q}${out} Interface is'nt on monitor mode!"
 		sleep 1
 		echo -e "${in}${Y}*${Q}${out} Change to monitor mode..."
 		sleep 2
-		change_mode
+		changeMode
 	else
 		echo -e "\n${in}${Y}*${Q}${out} Set ${C}${iface}${Q} to main interface"
 		sleep 2
@@ -82,7 +82,7 @@ function check_mode() {
 	fi
 }
 
-function change_mode() {
+function changeMode() {
 	airmon-ng start ${iface} > /dev/null 2>&1
 	mon=$(ip link | grep -E "^[0-9]+" | awk -F':' '{ print $1 $2 }' | grep "mon")
   if [[ ${mon} == *'mon'* ]]; then
@@ -110,7 +110,7 @@ function menu() {
 		1 )
 			clear
 			banner
-			capture_handshake
+			captureHandshake
 			;;
 	esac
 }
@@ -141,7 +141,7 @@ function target() {
 	sleep 2
 }
 
-function deauth_option() {
+function deauthOption() {
 	clear
 	banner
 	echo -e "${in}${Y}${BD} DEAUTH OPTIONS ${Q}${out}\n"
@@ -169,9 +169,9 @@ function deauth_option() {
 	esac
 }
 
-function capture_handshake() {
+function captureHandshake() {
 	target
-	deauth_option
+	deauthOption
 	clear
 	banner
 	echo -e "${in}${Y}${BD} CAPTURE HANDSHAKE ${Q}${out}\n"
