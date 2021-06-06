@@ -26,6 +26,8 @@ Q='\033[0m'
 in="${C}[${Q}${BD}"
 out="${C}]${Q}"
 input="\n${BD}${R}${HOSTNAME}${G}@${C}WiFck ${G}>> ${Q}"
+loading="/―\|"
+int="0"
 
 trap quit INT
 
@@ -70,8 +72,12 @@ function checkMode() {
 	if [[ ${mode} != *'monitor'* ]]; then
 		echo -e "\n${in}${R}!${Q}${out} Interface is'nt on monitor mode!"
 		sleep 1
-		echo -e "${in}${Y}*${Q}${out} Change to monitor mode..."
-		sleep 2
+		while [[ ${int} -le 20 ]]
+		do
+			echo -ne "${in}${C}${BD}${loading:i++%${#loading}:1}]${Q} Change to monitor mode...\r"
+			sleep 0.1
+			((int++))
+		done
 		changeMode
 	else
 		echo -e "\n${in}${Y}*${Q}${out} Set ${C}${iface}${Q} to main interface"
@@ -118,7 +124,13 @@ function menu() {
 function target() {
 	echo -e "${in}${Y}${BD} EXPLORING TARGET ${Q}${out}\n"
 	echo -e "${in}${Y}*${out} Wait at least 5 second and then press CTRL+C to stop"
-  xterm -bg "black" -T "Scanning Target" -e /bin/bash -l -c "airodump-ng -w tmp/target --output-format csv ${iface}"
+  xterm -bg "black" -T "Scanning Target" -e /bin/bash -l -c "airodump-ng -w tmp/target --output-format csv ${iface}" &
+	scan_pid=$!
+	while [ -d /proc/$scan_pid ]
+	do
+		echo -ne "${in}${C}${BD}${loading:i++%${#loading}:1}]${Q} Exploring for target...\r"
+		sleep 0.1
+	done
   clear
   banner
   echo -e "${in}${Y}${BD} TARGET ${Q}${out}\n"
@@ -135,7 +147,7 @@ function target() {
   bssid=$(sed '1d' tmp/target.csv | cut -d, -f 14,4,1,6 | awk -F',' '{ print $1 }' | sed "${select_target}!d")
   channel=$(sed '1d' tmp/target.csv | cut -d, -f 14,4,1,6 | awk -F',' '{ print $2 }' | sed "${select_target}!d")
 	if [[ ${essid} == " " ]]; then
-		essid="\033[3m*Hidden Network*"
+		essid="\033[3m *Hidden Network*${Q}"
 	fi
 	echo -e "\n${in}${Y}*${Q}${out} Target${C}${essid}${Q} locked!"
 	sleep 2
@@ -175,6 +187,11 @@ function captureHandshake() {
 	clear
 	banner
 	echo -e "${in}${Y}${BD} CAPTURE HANDSHAKE ${Q}${out}\n"
+	echo -e "${in}${G}${BD} Target ${Q}${out}"
+	echo -e "${in}${Y}${BD}*${Q}${out} Network: ${essid}"
+	echo -e "${in}${Y}${BD}*${Q}${out} BSSID: ${bssid}"
+	echo -e "${in}${Y}${BD}*${Q}${out} Channel: ${channel}"
+
 }
 
 function quit() {
